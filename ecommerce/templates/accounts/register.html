@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Register — ShopCentral{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+  <h2>Create account</h2>
+  <p class="subtitle">Join ShopCentral and start shopping</p>
+
+  <form method="post">
+    {% csrf_token %}
+
+    <label>Username</label>
+    {{ form.username }}
+    {% if form.username.errors %}
+      {% for error in form.username.errors %}
+        <span style="font-size:0.72rem; color:#ff7675; display:block; margin-top:0.25rem;">⚠ {{ error }}</span>
+      {% endfor %}
+    {% endif %}
+
+    <label>Email Address</label>
+    {{ form.email }}
+    {% if form.email.errors %}
+      {% for error in form.email.errors %}
+        <span style="font-size:0.72rem; color:#ff7675; display:block; margin-top:0.25rem;">⚠ {{ error }}</span>
+      {% endfor %}
+    {% endif %}
+
+    <label>Password</label>
+    {{ form.password1 }}
+    {% if form.password1.errors %}
+      {% for error in form.password1.errors %}
+        <span style="font-size:0.72rem; color:#ff7675; display:block; margin-top:0.25rem;">⚠ {{ error }}</span>
+      {% endfor %}
+    {% endif %}
+
+    <label>Confirm Password</label>
+    {{ form.password2 }}
+    {% if form.password2.errors %}
+      {% for error in form.password2.errors %}
+        <span style="font-size:0.72rem; color:#ff7675; display:block; margin-top:0.25rem;">⚠ {{ error }}</span>
+      {% endfor %}
+    {% endif %}
+
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger" style="margin-top:1rem;">
+        {% for error in form.non_field_errors %}
+          ❌ {{ error }}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <button type="submit" class="btn btn-primary">Create Account →</button>
+  </form>
+
+  <p class="footer-text">
+    Already have an account? <a href="{% url 'login' %}">Login</a>
+  </p>
+</div>
+{% endblock %}

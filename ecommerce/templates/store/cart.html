@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Your Cart — MyShop{% endblock %}
+
+{% block content %}
+<div class="cart-wrapper">
+  <h2>🛒 Your Cart</h2>
+
+  {% if cart %}
+  <div class="row g-4">
+
+    <!-- Cart Items -->
+    <div class="col-lg-8">
+      <table class="table" style="border-collapse: separate; border-spacing: 0 10px;">
+        <thead>
+          <tr>
+            <th style="padding:0.5rem 1rem; font-family:'Syne',sans-serif; font-size:0.65rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); border:none;">Product</th>
+            <th style="padding:0.5rem 1rem; font-family:'Syne',sans-serif; font-size:0.65rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); border:none;">Price</th>
+            <th style="padding:0.5rem 1rem; font-family:'Syne',sans-serif; font-size:0.65rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); border:none;">Qty</th>
+            <th style="padding:0.5rem 1rem; font-family:'Syne',sans-serif; font-size:0.65rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); border:none;">Total</th>
+            <th style="border:none;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in cart %}
+          <tr style="background:var(--bg-3);">
+            <td style="border-radius:10px 0 0 10px; padding:1.1rem 1rem; border:1px solid var(--border); border-right:none;">
+              <div class="cart-product-name">
+                {% if item.product.image %}
+                  <img src="{{ item.product.image.url }}"
+                    style="width:55px; height:55px; object-fit:cover; border-radius:8px; flex-shrink:0; border:1px solid var(--border);">
+                {% endif %}
+                <span style="font-family:'Syne',sans-serif; font-size:0.9rem; color:var(--white); font-weight:500;">
+                  {{ item.product.name }}
+                </span>
+              </div>
+            </td>
+            <td style="padding:1.1rem 1rem; border-top:1px solid var(--border); border-bottom:1px solid var(--border); font-family:'Syne',sans-serif; font-size:0.9rem; color:var(--muted-light);">
+              ₹{{ item.price }}
+            </td>
+            <td style="padding:1.1rem 1rem; border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+              <span style="display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; background:var(--bg-2); border:1px solid var(--border); border-radius:6px; font-family:'Syne',sans-serif; font-size:0.9rem; color:var(--white);">
+                {{ item.quantity }}
+              </span>
+            </td>
+            <td style="padding:1.1rem 1rem; border-top:1px solid var(--border); border-bottom:1px solid var(--border); font-family:'Cormorant Garamond',serif; font-size:1.1rem; font-weight:700; color:var(--gold);">
+              ₹{{ item.total_price }}
+            </td>
+            <td style="border-radius:0 10px 10px 0; padding:1.1rem 1rem; border:1px solid var(--border); border-left:none; text-align:right;">
+              <a href="{% url 'store:cart_remove' item.product.id %}" class="btn btn-danger btn-sm">Remove</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <a href="{% url 'store:product_list' %}" class="btn btn-outline-secondary mt-2">← Continue Shopping</a>
+    </div>
+
+    <!-- Right Side -->
+    <div class="col-lg-4">
+      <form method="post" action="{% url 'store:place_order' %}"
+        style="display:flex; flex-direction:column; gap:1.25rem;">
+        {% csrf_token %}
+        <input type="hidden" name="payment" id="selected-payment" value="upi">
+
+        <!-- 1. Order Summary -->
+        <div class="payment-box" style="position:relative; top:auto;">
+          <h5 class="payment-title">Order Summary</h5>
+          <div class="payment-row">
+            <span>Subtotal</span>
+            <span>₹{{ cart.get_total }}</span>
+          </div>
+          <div class="payment-row">
+            <span>Delivery</span>
+            <span style="color:#55efc4; font-weight:600;">FREE</span>
+          </div>
+          <div class="payment-row">
+            <span>Discount</span>
+            <span style="color:#55efc4;">— ₹0</span>
+          </div>
+          <div class="payment-total">
+            <span>Total Amount</span>
+            <span>₹{{ cart.get_total }}</span>
+          </div>
+          <p class="payment-save">🎉 You're getting FREE delivery on this order!</p>
+        </div>
+
+        <!-- 2. Delivery Address -->
+        <div class="payment-box" style="position:relative; top:auto;">
+          <h5 class="payment-title">📍 Delivery Address</h5>
+
+          {% if error %}
+            <div class="alert alert-danger" style="margin-bottom:1rem;">
+              ❌ {{ error }}
+            </div>
+          {% endif %}
+
+          <div style="display:flex; flex-direction:column; gap:0.85rem;">
+
+            <div>
+              <label style="font-family:'Syne',sans-serif; font-size:0.68rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:0.35rem;">
+                Full Address *
+              </label>
+              <textarea name="address" rows="2" required
+                placeholder="House no, Street, Area..."
+                style="width:100%; padding:0.7rem 1rem; border:1px solid var(--border); border-radius:8px; font-family:'Syne',sans-serif; font-size:0.85rem; background:var(--bg-3); color:var(--white); resize:none; outline:none;">{{ user.profile.address }}</textarea>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+              <div>
+                <label style="font-family:'Syne',sans-serif; font-size:0.68rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:0.35rem;">
+                  City *
+                </label>
+                <input type="text" name="city" required
+                  placeholder="Mumbai"
+                  value="{{ user.profile.city }}"
+                  style="width:100%; padding:0.7rem 1rem; border:1px solid var(--border); border-radius:8px; font-family:'Syne',sans-serif; font-size:0.85rem; background:var(--bg-3); color:var(--white); outline:none;">
+              </div>
+              <div>
+                <label style="font-family:'Syne',sans-serif; font-size:0.68rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:0.35rem;">
+                  State *
+                </label>
+                <input type="text" name="state" required
+                  placeholder="Maharashtra"
+                  value="{{ user.profile.state }}"
+                  style="width:100%; padding:0.7rem 1rem; border:1px solid var(--border); border-radius:8px; font-family:'Syne',sans-serif; font-size:0.85rem; background:var(--bg-3); color:var(--white); outline:none;">
+              </div>
+            </div>
+
+            <div>
+              <label style="font-family:'Syne',sans-serif; font-size:0.68rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:0.35rem;">
+                Pincode *
+              </label>
+              <input type="text" name="pincode" required
+                placeholder="400001"
+                maxlength="6"
+                value="{{ user.profile.pincode }}"
+                style="width:100%; padding:0.7rem 1rem; border:1px solid var(--border); border-radius:8px; font-family:'Syne',sans-serif; font-size:0.85rem; background:var(--bg-3); color:var(--white); outline:none;">
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 3. Payment Method -->
+        <div class="payment-box" style="position:relative; top:auto;">
+          <h6 class="payment-methods-title">Select Payment Method</h6>
+
+          <div class="payment-methods">
+            <label class="payment-method">
+              <input type="radio" name="payment_display" value="upi" checked
+                onchange="document.getElementById('selected-payment').value='upi'">
+              <span>📱 UPI / GPay / PhonePe</span>
+            </label>
+            <label class="payment-method">
+              <input type="radio" name="payment_display" value="card"
+                onchange="document.getElementById('selected-payment').value='card'">
+              <span>💳 Credit / Debit Card</span>
+            </label>
+            <label class="payment-method">
+              <input type="radio" name="payment_display" value="netbanking"
+                onchange="document.getElementById('selected-payment').value='netbanking'">
+              <span>🏦 Net Banking</span>
+            </label>
+            <label class="payment-method">
+              <input type="radio" name="payment_display" value="cod"
+                onchange="document.getElementById('selected-payment').value='cod'">
+              <span>💵 Cash on Delivery</span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-success w-100 mt-3"
+            style="padding:0.85rem; font-size:0.85rem; justify-content:center; letter-spacing:0.1em;">
+            Place Order →
+          </button>
+
+          <div class="payment-secure">
+            🔒 100% Secure & Safe Payments
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+
+  {% else %}
+  <div class="empty-cart">
+    <div class="icon">🛒</div>
+    <p>Your cart is empty!</p>
+    <a href="{% url 'store:product_list' %}" class="btn btn-primary">Start Shopping →</a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

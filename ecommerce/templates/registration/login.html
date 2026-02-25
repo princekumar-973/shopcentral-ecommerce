@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login — ShopCentral{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+  <h2>Welcome back</h2>
+  <p class="subtitle">Login to your ShopCentral account</p>
+
+  <form method="post">
+    {% csrf_token %}
+
+    <label>Username</label>
+    <input type="text" name="username" autofocus required>
+
+    <label>Password</label>
+    <input type="password" name="password" required>
+
+    {% if form.errors %}
+      <div class="alert alert-danger" style="margin-top:1rem;">
+        ❌ Invalid username or password. Please try again.
+      </div>
+    {% endif %}
+
+    <button type="submit" class="btn btn-primary">Login →</button>
+  </form>
+
+  <p class="footer-text">
+    Don't have an account? <a href="{% url 'accounts:register' %}">Sign up free</a>
+  </p>
+</div>
+{% endblock %}

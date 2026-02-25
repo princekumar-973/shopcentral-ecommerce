@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ShopCentral — Premium Store{% endblock %}
+
+
+{% block content %}
+
+<!-- ═══════════════════════════════════════════
+     HERO SECTION
+═══════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero__text">
+    <p class="hero__tag">New Collection 2026</p>
+    <h1 class="hero__heading">
+      Style that<br>
+      <em>speaks</em> for<br>
+      <span class="line-muted">itself.</span>
+    </h1>
+    <p class="hero__sub">Discover handpicked premium products — curated for those who refuse to settle for ordinary.</p>
+    <div class="hero__actions">
+      <a href="{% url 'store:product_list' %}" class="btn-hero">Shop Now →</a>
+      <a href="#categories" class="btn-hero-ghost">Browse Categories</a>
+    </div>
+    <div class="hero__stats">
+      <div>
+        <span class="hero__stat-num">500+</span>
+        <span class="hero__stat-label">Products</span>
+      </div>
+      <div>
+        <span class="hero__stat-num">★ 4.9</span>
+        <span class="hero__stat-label">Rating</span>
+      </div>
+      <div>
+        <span class="hero__stat-num">10K+</span>
+        <span class="hero__stat-label">Customers</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero__visual">
+    <div class="hero__img-frame">🛍️</div>
+    <div class="hero__float-card">
+      <span class="float-card__val">Free</span>
+      <span class="float-card__label">Delivery</span>
+    </div>
+    <div class="hero__float-card hero__float-card--2">
+      <span class="float-card__val">85%</span>
+      <span class="float-card__label">Max Off</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     MARQUEE STRIP
+═══════════════════════════════════════════ -->
+<div class="marquee-strip">
+  <div class="marquee-track">
+    {% for cat in categories %}
+      <span class="accent">✦</span><span>{{ cat.name }}</span>
+    {% empty %}
+      <span class="accent">✦</span><span>Free Shipping</span>
+      <span class="accent">✦</span><span>Premium Quality</span>
+      <span class="accent">✦</span><span>Easy Returns</span>
+      <span class="accent">✦</span><span>Secure Payment</span>
+      <span class="accent">✦</span><span>New Arrivals</span>
+    {% endfor %}
+    {% for cat in categories %}
+      <span class="accent">✦</span><span>{{ cat.name }}</span>
+    {% empty %}
+      <span class="accent">✦</span><span>Free Shipping</span>
+      <span class="accent">✦</span><span>Premium Quality</span>
+      <span class="accent">✦</span><span>Easy Returns</span>
+      <span class="accent">✦</span><span>Secure Payment</span>
+      <span class="accent">✦</span><span>New Arrivals</span>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     CATEGORIES
+═══════════════════════════════════════════ -->
+<section class="section" id="categories">
+  <div class="section-header">
+    <div>
+      <p class="section-eyebrow">Explore</p>
+      <h2 class="section-title">Shop by Category</h2>
+    </div>
+    <a href="{% url 'store:product_list' %}" class="see-all-link">View all →</a>
+  </div>
+
+  <div class="category-cards">
+    {% for cat in categories %}
+    <a href="{% url 'store:product_list' %}?category={{ cat.slug }}" class="category-card">
+      <div class="category-card__icon">🏷️</div>
+      <span class="category-card__name">{{ cat.name }}</span>
+      <span style="font-size:0.7rem; color:var(--gold); opacity:0;">→</span>
+    </a>
+    {% empty %}
+    <p style="color:var(--muted); grid-column:1/-1;">No categories yet. Add some in the <a href="/admin" style="color:var(--gold)">admin panel</a>.</p>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FEATURED PRODUCTS
+═══════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <div>
+      <p class="section-eyebrow">Handpicked</p>
+      <h2 class="section-title">Featured Products</h2>
+    </div>
+    <a href="{% url 'store:product_list' %}" class="see-all-link">View all →</a>
+  </div>
+
+  <div class="flip-grid">
+    {% for product in featured_products %}
+    <a href="{% url 'store:product_detail' product.slug %}" class="flip-card">
+
+      <div class="flip-card__img-wrap">
+        {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.name }}">
+        {% else %}
+          <div class="flip-card__no-img">🛍️</div>
+        {% endif %}
+
+        {% if product.original_price and product.original_price > product.price %}
+          <span class="flip-card__discount">Sale</span>
+        {% endif %}
+
+        <button class="flip-card__wish" onclick="event.preventDefault(); this.classList.toggle('active')"></button>
+      </div>
+
+      <div class="flip-card__info">
+        <p class="flip-card__brand">{{ product.category.name }}</p>
+        <p class="flip-card__title">{{ product.name }}</p>
+        <div class="flip-card__price-row">
+          <span class="flip-card__price">₹{{ product.price }}</span>
+          {% if product.original_price and product.original_price > product.price %}
+            <span class="flip-card__original">₹{{ product.original_price }}</span>
+          {% endif %}
+        </div>
+        {% if product.stock == 0 %}
+          <p class="flip-card__stock out">Out of Stock</p>
+        {% elif product.stock <= 5 %}
+          <p class="flip-card__stock low">Only {{ product.stock }} left</p>
+        {% endif %}
+      </div>
+
+      {% if product.stock > 0 %}
+        <span class="flip-card__btn">View Product →</span>
+      {% else %}
+        <span class="flip-card__btn" style="opacity:0.4; cursor:default;">Sold Out</span>
+      {% endif %}
+
+    </a>
+    {% empty %}
+    <div class="flip-empty">
+      <div style="font-size:3rem; margin-bottom:1rem;">🛒</div>
+      <p>No products yet. Add some via the <a href="/admin">admin panel</a>.</p>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div style="text-align:center; margin-top:3rem;">
+    <a href="{% url 'store:product_list' %}" class="btn btn-primary" style="padding:0.85rem 2.5rem; font-size:0.85rem;">
+      View All Products →
+    </a>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FEATURES / TRUST
+═══════════════════════════════════════════ -->
+<div class="features-section">
+  <div class="container">
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-card__icon">🚚</div>
+        <div>
+          <div class="feature-card__title">Free Shipping</div>
+          <p class="feature-card__desc">Free delivery on all orders above ₹499. Fast and reliable.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon">🔒</div>
+        <div>
+          <div class="feature-card__title">Secure Payment</div>
+          <p class="feature-card__desc">100% secure transactions with UPI, Cards & Net Banking.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-card__icon">🔄</div>
+        <div>
+          <div class="feature-card__title">Easy Returns</div>
+          <p class="feature-card__desc">7-day hassle-free return policy. No questions asked.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

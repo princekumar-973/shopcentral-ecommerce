@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Account — ShopCentral{% endblock %}
+
+{% block content %}
+
+<div class="account-layout">
+
+  <!-- Sidebar -->
+  <div class="account-sidebar">
+    <div class="account-avatar">
+      {% if user.profile.avatar %}
+        <img src="{{ user.profile.avatar.url }}" alt="Avatar">
+      {% else %}
+        <div class="account-avatar__placeholder">
+          {{ user.username|first|upper }}
+        </div>
+      {% endif %}
+    </div>
+    <h4 class="account-name">{{ user.get_full_name|default:user.username }}</h4>
+    <p class="account-email">{{ user.email|default:"No email set" }}</p>
+
+    <nav class="account-nav">
+      <a href="{% url 'accounts:dashboard' %}" class="account-nav__link active">
+        <span>🏠</span> Dashboard
+      </a>
+      <a href="{% url 'accounts:profile' %}" class="account-nav__link">
+        <span>👤</span> Edit Profile
+      </a>
+      <a href="{% url 'store:my_orders' %}" class="account-nav__link">
+        <span>📦</span> My Orders
+      </a>
+      <a href="{% url 'store:cart_detail' %}" class="account-nav__link">
+        <span>🛒</span> My Cart
+      </a>
+      <form method="post" action="{% url 'logout' %}" style="margin:0;">
+        {% csrf_token %}
+        <button type="submit" class="account-nav__link account-nav__logout">
+          <span>🚪</span> Logout
+        </button>
+      </form>
+    </nav>
+  </div>
+
+  <!-- Main Content -->
+  <div class="account-main">
+
+    <!-- Welcome Banner -->
+    <div class="account-welcome">
+      <h2>Welcome back, <em>{{ user.get_full_name|default:user.username }}</em> 👋</h2>
+      <p>Manage your profile, track your orders and more from your personal dashboard.</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="account-stats">
+      <div class="account-stat">
+        <span class="account-stat__icon">📦</span>
+        <span class="account-stat__num">{{ user.orders.count }}</span>
+        <span class="account-stat__label">Orders</span>
+      </div>
+      <div class="account-stat">
+        <span class="account-stat__icon">♡</span>
+        <span class="account-stat__num">0</span>
+        <span class="account-stat__label">Wishlist</span>
+      </div>
+      <div class="account-stat">
+        <span class="account-stat__icon">📍</span>
+        <span class="account-stat__num">{% if user.profile.address %}1{% else %}0{% endif %}</span>
+        <span class="account-stat__label">Address</span>
+      </div>
+    </div>
+
+    <!-- Account Info -->
+    <div class="account-info-card">
+      <h5>Account Details</h5>
+      <div class="account-info-grid">
+        <div class="account-info-item">
+          <span class="account-info-label">Username</span>
+          <span class="account-info-value">{{ user.username }}</span>
+        </div>
+        <div class="account-info-item">
+          <span class="account-info-label">Full Name</span>
+          <span class="account-info-value">{{ user.get_full_name|default:"Not set" }}</span>
+        </div>
+        <div class="account-info-item">
+          <span class="account-info-label">Email</span>
+          <span class="account-info-value">{{ user.email|default:"Not set" }}</span>
+        </div>
+        <div class="account-info-item">
+          <span class="account-info-label">Phone</span>
+          <span class="account-info-value">{{ user.profile.phone|default:"Not set" }}</span>
+        </div>
+        <div class="account-info-item">
+          <span class="account-info-label">City</span>
+          <span class="account-info-value">{{ user.profile.city|default:"Not set" }}</span>
+        </div>
+        <div class="account-info-item">
+          <span class="account-info-label">Member Since</span>
+          <span class="account-info-value">{{ user.date_joined|date:"d M Y" }}</span>
+        </div>
+      </div>
+      <a href="{% url 'accounts:profile' %}" class="btn btn-primary mt-3">
+        Edit Profile →
+      </a>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="account-info-card">
+      <h5>Recent Orders</h5>
+
+      {% with recent_orders=user.orders.all|slice:":3" %}
+      {% if recent_orders %}
+        {% for order in recent_orders %}
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:0.85rem 0; border-bottom:1px solid var(--border); flex-wrap:wrap; gap:0.5rem;">
+          <div>
+            <span style="font-family:'Cormorant Garamond',serif; font-size:1.1rem; font-weight:700; color:var(--gold);">#{{ order.id }}</span>
+            <span style="font-family:'Syne',sans-serif; font-size:0.78rem; color:var(--muted); margin-left:0.75rem;">{{ order.created_at|date:"d M Y" }}</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:1rem;">
+            <span style="font-family:'Syne',sans-serif; font-size:0.78rem; color:var(--white); font-weight:600;">₹{{ order.total_amount }}</span>
+            <span style="
+              font-family:'Syne',sans-serif;
+              font-size:0.68rem;
+              font-weight:700;
+              padding:0.25rem 0.75rem;
+              border-radius:999px;
+              text-transform:uppercase;
+              letter-spacing:0.06em;
+              {% if order.status == 'delivered' %}background:rgba(85,239,196,0.1); color:#55efc4; border:1px solid rgba(85,239,196,0.3);
+              {% elif order.status == 'cancelled' %}background:rgba(255,118,117,0.1); color:#ff7675; border:1px solid rgba(255,118,117,0.3);
+              {% elif order.status == 'shipped' %}background:rgba(201,168,76,0.1); color:var(--gold); border:1px solid var(--border-hover);
+              {% else %}background:var(--bg-3); color:var(--muted-light); border:1px solid var(--border);
+              {% endif %}
+            ">{{ order.get_status_display }}</span>
+          </div>
+        </div>
+        {% endfor %}
+        <a href="{% url 'store:my_orders' %}" class="btn btn-outline-secondary mt-3">
+          View All Orders →
+        </a>
+      {% else %}
+        <div style="text-align:center; padding:2rem; color:var(--muted); font-family:'Syne',sans-serif; font-size:0.88rem;">
+          <div style="font-size:2.5rem; margin-bottom:0.75rem;">📦</div>
+          No orders yet.
+          <a href="{% url 'store:product_list' %}" style="color:var(--gold); font-weight:600; margin-left:0.4rem;">Start shopping →</a>
+        </div>
+      {% endif %}
+      {% endwith %}
+
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

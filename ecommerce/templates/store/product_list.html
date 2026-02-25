@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Products — MyShop{% endblock %}
+
+{% block content %}
+
+<!-- Page Hero -->
+<div class="page-hero mb-5">
+  <h1>Our Collection</h1>
+  <p>Handpicked products just for you</p>
+</div>
+
+<!-- Category Filter -->
+<div class="category-filter">
+  <a href="{% url 'store:product_list' %}" class="{% if not request.GET.category %}active{% endif %}">All</a>
+  {% for cat in categories %}
+    <a href="?category={{ cat.slug }}"
+       class="{% if request.GET.category == cat.slug %}active{% endif %}">
+      {{ cat.name }}
+    </a>
+  {% endfor %}
+</div>
+
+<!-- Results count -->
+<p class="results-count">Showing <strong>{{ products|length }}</strong> product{{ products|length|pluralize }}</p>
+
+<!-- Product Grid -->
+<div class="flip-grid">
+  {% for product in products %}
+  <a href="{% url 'store:product_detail' product.slug %}" class="flip-card">
+
+    <div class="flip-card__img-wrap">
+      {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+      {% else %}
+        <div class="flip-card__no-img">🛍️</div>
+      {% endif %}
+
+      {% if product.original_price and product.original_price > product.price %}
+        <span class="flip-card__discount">Sale</span>
+      {% endif %}
+
+      <button class="flip-card__wish" onclick="event.preventDefault(); this.classList.toggle('active')">♡</button>
+    </div>
+
+    <div class="flip-card__info">
+      <p class="flip-card__brand">{{ product.category.name }}</p>
+      <p class="flip-card__title">{{ product.name }}</p>
+
+      <div class="flip-card__price-row">
+        <span class="flip-card__price">₹{{ product.price }}</span>
+        {% if product.original_price and product.original_price > product.price %}
+          <span class="flip-card__original">₹{{ product.original_price }}</span>
+        {% endif %}
+      </div>
+
+      {% if product.stock == 0 %}
+        <p class="flip-card__stock out">Out of Stock</p>
+      {% elif product.stock <= 5 %}
+        <p class="flip-card__stock low">Only {{ product.stock }} left</p>
+      {% endif %}
+    </div>
+
+  </a>
+  {% empty %}
+  <div class="flip-empty">
+    <div style="font-size:3rem">🔍</div>
+    <p>No products found in this category.</p>
+    <a href="{% url 'store:product_list' %}">View all products</a>
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

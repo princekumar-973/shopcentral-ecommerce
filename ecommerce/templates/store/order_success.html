@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Placed — MyShop{% endblock %}
+
+{% block content %}
+<div style="text-align:center; padding:4rem 2rem; max-width:600px; margin:0 auto;">
+  <div style="font-size:4rem; margin-bottom:1rem;">🎉</div>
+  <h2 style="font-size:2.5rem; color:var(--gold); margin-bottom:0.75rem;">Order Placed!</h2>
+  <p style="color:var(--muted-light); font-size:1rem; margin-bottom:2rem;">
+    Thank you <strong style="color:var(--white);">{{ order.user.username }}</strong>!
+    Your order <strong style="color:var(--gold);">#{{ order.id }}</strong> has been placed successfully.
+  </p>
+
+  <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:1.5rem; text-align:left; margin-bottom:2rem;">
+    <div style="display:flex; justify-content:space-between; padding:0.5rem 0; border-bottom:1px solid var(--border); font-family:'Syne',sans-serif; font-size:0.85rem;">
+      <span style="color:var(--muted);">Order ID</span>
+      <span style="color:var(--white); font-weight:600;">#{{ order.id }}</span>
+    </div>
+    <div style="display:flex; justify-content:space-between; padding:0.5rem 0; border-bottom:1px solid var(--border); font-family:'Syne',sans-serif; font-size:0.85rem;">
+      <span style="color:var(--muted);">Total Amount</span>
+      <span style="color:var(--gold); font-weight:600; font-family:'Cormorant Garamond',serif; font-size:1.1rem;">₹{{ order.total_amount }}</span>
+    </div>
+    <div style="display:flex; justify-content:space-between; padding:0.5rem 0; border-bottom:1px solid var(--border); font-family:'Syne',sans-serif; font-size:0.85rem;">
+      <span style="color:var(--muted);">Payment</span>
+      <span style="color:var(--white);">{{ order.get_payment_method_display }}</span>
+    </div>
+    <div style="display:flex; justify-content:space-between; padding:0.5rem 0; font-family:'Syne',sans-serif; font-size:0.85rem;">
+      <span style="color:var(--muted);">Status</span>
+      <span style="color:#55efc4; font-weight:600;">{{ order.get_status_display }}</span>
+    </div>
+  </div>
+
+  <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+    <a href="{% url 'store:my_orders' %}" class="btn btn-primary" style="padding:0.85rem 2rem;">
+      View My Orders →
+    </a>
+    <a href="{% url 'store:product_list' %}" class="btn btn-outline-secondary" style="padding:0.85rem 2rem;">
+      Continue Shopping
+    </a>
+  </div>
+</div>
+{% endblock %}

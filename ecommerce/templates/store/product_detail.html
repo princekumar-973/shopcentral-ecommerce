@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} — MyShop{% endblock %}
+
+{% block content %}
+<div class="product-detail">
+  <div class="row g-5">
+    <div class="col-md-5">
+      {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+      {% endif %}
+    </div>
+    <div class="col-md-7">
+      <p class="flip-card__brand" style="margin-bottom:0.5rem;">{{ product.category.name }}</p>
+      <h2>{{ product.name }}</h2>
+      <p class="description">{{ product.description }}</p>
+      <div class="price-tag">₹{{ product.price }}</div>
+
+      <form method="post" action="{% url 'store:cart_add' product.id %}">
+        {% csrf_token %}
+        <div class="qty-wrapper">
+          <label>Qty</label>
+          <input type="number" name="quantity" value="1" min="1">
+        </div>
+        <button type="submit" class="btn btn-success">Add to Cart →</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<a href="{% url 'store:product_list' %}" class="btn btn-outline-secondary mt-4">← Continue Shopping</a>
+{% endblock %}
